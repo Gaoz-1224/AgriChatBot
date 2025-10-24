@@ -1,0 +1,1950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的作物 - 农业智能管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 动态背景粒子 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 导航栏 */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .nav-tabs a {
+            flex: 1;
+            padding: 14px 20px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-tabs a::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .nav-tabs a:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .nav-tabs a.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-tabs a:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 页头 */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        /* 作物网格 */
+        .crops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        /* 作物卡片 */
+        .crop-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            animation: cardSlideIn 0.6s ease-out both;
+        }
+
+        @keyframes cardSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .crop-card:nth-child(1) { animation-delay: 0.1s; }
+        .crop-card:nth-child(2) { animation-delay: 0.2s; }
+        .crop-card:nth-child(3) { animation-delay: 0.3s; }
+        .crop-card:nth-child(4) { animation-delay: 0.4s; }
+        .crop-card:nth-child(5) { animation-delay: 0.5s; }
+        .crop-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .crop-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.3),
+                transparent
+            );
+            transition: left 0.6s;
+        }
+
+        .crop-card:hover::before {
+            left: 100%;
+        }
+
+        .crop-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            background: rgba(255, 255, 255, 1);
+            border-color: #667eea;
+        }
+
+        .crop-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .crop-name {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .crop-status {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 8px rgba(76, 175, 80, 0);
+            }
+        }
+
+        .status-growing {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .status-growing::before {
+            content: '●';
+            margin-right: 5px;
+            animation: blink 1.5s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .status-harvested {
+            background: linear-gradient(135deg, #ff9800 0%, #ffa726 100%);
+            color: white;
+        }
+
+        .crop-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .stat-item {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            padding: 12px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid rgba(102, 126, 234, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-color: #667eea;
+            transform: scale(1.05);
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .latest-data {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            padding: 12px;
+            border-radius: 12px;
+            margin: 15px 0;
+            border: 2px solid rgba(33, 150, 243, 0.2);
+        }
+
+        .latest-data .label {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .latest-data .value {
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .crop-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .btn-small {
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .btn-record {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            color: white;
+        }
+
+        .btn-record:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-view {
+            background: linear-gradient(135deg, #2196f3 0%, #42a5f5 100%);
+            color: white;
+        }
+
+        .btn-view:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+        }
+
+        .btn-ai {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            animation: pulse 2s infinite;
+        }
+
+        .btn-ai::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-ai:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-ai:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .delete-btn-float {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            color: #f44336;
+            padding: 4px;
+            border: 2px solid rgba(244, 67, 54, 0.3);
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            line-height: 1;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .delete-btn-float:hover {
+            background: #f44336;
+            color: white;
+            transform: scale(1.2) rotate(90deg);
+            box-shadow: 0 4px 12px rgba(244, 67, 54, 0.4);
+        }
+        .delete-btn-float:active {
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: scale(1.15) rotate(-5deg); }
+            25% { transform: scale(1.15) rotate(-10deg); }
+            75% { transform: scale(1.15) rotate(0deg); }
+        }
+
+        .empty-state {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 80px 60px;
+            text-align: center;
+            grid-column: 1 / -1;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .empty-state .icon {
+            font-size: 8em;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .empty-state h3 {
+            color: #333;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+
+        .empty-state p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 25px;
+        }
+
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 2em;
+            cursor: pointer;
+            color: #999;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* AI侧边栏 */
+        .ai-sidebar {
+            position: fixed;
+            top: 0;
+            right: -500px;
+            width: 500px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 30px rgba(0,0,0,0.3);
+            z-index: 2000;
+            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .ai-sidebar.show {
+            right: 0;
+        }
+
+        .ai-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .ai-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .ai-sidebar-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ai-sidebar-title {
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .ai-sidebar-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            font-size: 2em;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .ai-sidebar-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .ai-sidebar-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        /* 继续下一部分... */
+    </style>
+</head>
+    <style>
+        /* 接上一部分... */
+
+        .analysis-progress {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 20px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-text {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        .typing-effect {
+            overflow: hidden;
+            white-space: nowrap;
+            animation: typing 2s steps(40, end);
+        }
+
+        .analysis-card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+
+        .analysis-card:nth-child(1) { animation-delay: 0.1s; }
+        .analysis-card:nth-child(2) { animation-delay: 0.2s; }
+        .analysis-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .analysis-icon {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .analysis-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .analysis-content {
+            color: #555;
+            line-height: 1.8;
+        }
+
+        .score-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 1.5s ease-out;
+            width: 0;
+        }
+
+        .score-fill.animate {
+            width: var(--score-width);
+        }
+
+        .suggestion-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .suggestion-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 3px solid #667eea;
+            display: flex;
+            align-items: start;
+            gap: 10px;
+            opacity: 0;
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .suggestion-item:nth-child(1) { animation-delay: 0.1s; }
+        .suggestion-item:nth-child(2) { animation-delay: 0.2s; }
+        .suggestion-item:nth-child(3) { animation-delay: 0.3s; }
+
+        .suggestion-icon {
+            font-size: 1.5em;
+        }
+
+        .ai-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn-save-report {
+            flex: 1;
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-save-report:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        /* AI对话功能 */
+        .ai-chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ai-welcome {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            animation: fadeInDown 0.5s;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-welcome-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .ai-crop-info {
+            font-size: 0.9em;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            max-height: 400px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: messageSlideIn 0.3s;
+        }
+
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 12px 18px;
+            border-radius: 18px;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .message.ai .message-bubble {
+            background: white;
+            color: #333;
+            border: 2px solid #667eea;
+            text-align: left;
+        }
+
+        .message.user .message-bubble {
+            background: #667eea;
+            color: white;
+            text-align: left;
+        }
+
+        .message-avatar {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            padding: 12px 18px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 18px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 5px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #667eea;
+            border-radius: 50%;
+            animation: typingBounce 1.4s infinite;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typingBounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-10px); }
+        }
+
+        .quick-questions {
+            margin-bottom: 20px;
+        }
+
+        .quick-questions-title {
+            font-size: 0.9em;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .quick-question-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .quick-question-btn {
+            background: white;
+            border: 2px solid #667eea;
+            color: #667eea;
+            padding: 10px 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9em;
+        }
+
+        .quick-question-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 18px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .chat-send-btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .chat-send-btn:hover {
+            background: #5568d3;
+            transform: scale(1.05);
+        }
+
+        .chat-send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .mode-switch {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .mode-btn:hover {
+            border-color: #667eea;
+        }
+
+        /* Toast提示 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 9999;
+            animation: slideInRight 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .toast.success { border-left: 4px solid #4caf50; }
+        .toast.error { border-left: 4px solid #f44336; }
+        .toast.info { border-left: 4px solid #2196f3; }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .crops-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-wrap: wrap;
+            }
+
+            .nav-tabs a {
+                font-size: 0.9em;
+                padding: 12px 15px;
+            }
+
+            .crop-actions {
+                grid-template-columns: 1fr;
+            }
+
+            .ai-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .quick-question-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景粒子 -->
+    <div class="particles" id="particles"></div>
+
+    <div class="container">
+        <!-- 导航栏 -->
+        <div class="nav-tabs">
+            <a href="/">🏠 首页</a>
+            <a href="/chat">💬 AI问答</a>
+            <a href="/my-crops" class="active">🌱 我的作物</a>
+            <a href="/knowledge">📚 知识库</a>
+        </div>
+
+        <!-- 页头 -->
+        <div class="header">
+            <h1>🌾 我的作物</h1>
+            <p style="color: #666; margin-top: 10px;">管理你的所有作物，一个作物一个完整生命周期</p>
+            
+            <div class="action-bar">
+                <div>
+                    <button class="btn-primary" onclick="openAddModal()">➕ 新建作物</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作物网格 -->
+        <div id="crops-container" class="crops-grid">
+            <!-- 作物卡片将在这里动态生成 -->
+        </div>
+    </div>
+
+    <!-- 添加作物模态框 -->
+    <div class="modal" id="add-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建作物</h3>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+            <form id="add-form">
+                <div class="form-group">
+                    <label>作物名称 *（例如：小麦1号田）</label>
+                    <input type="text" id="name" required placeholder="给作物起个名字，方便识别">
+                </div>
+
+                <div class="form-group">
+                    <label>作物类型 *</label>
+                    <select id="crop_type" required>
+                        <option value="">请选择</option>
+                        <option value="小麦">小麦</option>
+                        <option value="水稻">水稻</option>
+                        <option value="玉米">玉米</option>
+                        <option value="大豆">大豆</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>品种</label>
+                    <input type="text" id="variety" placeholder="例如：郑麦366">
+                </div>
+
+                <div class="form-group">
+                    <label>面积（亩）</label>
+                    <input type="number" id="area" step="0.1" placeholder="例如：5.5">
+                </div>
+
+                <div class="form-group">
+                    <label>播种日期</label>
+                    <input type="date" id="planting_date">
+                </div>
+
+                <div class="form-group">
+                    <label>预计收获日期</label>
+                    <input type="date" id="expected_harvest_date">
+                </div>
+
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="notes" rows="3" placeholder="记录其他信息..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary" style="width: 100%;">创建作物</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI分析侧边栏 -->
+    <div class="ai-overlay" id="ai-overlay" onclick="closeAISidebar()"></div>
+
+    <div class="ai-sidebar" id="ai-sidebar">
+        <div class="ai-sidebar-header">
+            <div>
+                <div class="ai-sidebar-title">🤖 AI智能分析</div>
+                <div id="ai-crop-name" style="font-size: 0.9em; opacity: 0.9; margin-top: 5px;"></div>
+            </div>
+            <button class="ai-sidebar-close" onclick="closeAISidebar()">&times;</button>
+        </div>
+
+        <div class="ai-sidebar-content" id="ai-content">
+            <!-- 内容将动态生成 -->
+        </div>
+    </div>
+
+    <script>
+        // 继续第3部分JavaScript代码...
+        let crops = [];
+        let currentAnalysisCropId = null;
+        let chatHistory = [];
+        let currentChatMode = 'quick';
+
+        // 创建动态背景粒子
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // Toast提示
+        function showToast(message, type = 'info') {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span style="font-size: 1.5em;">${icons[type]}</span>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.4s ease reverse';
+                setTimeout(() => toast.remove(), 400);
+            }, 3000);
+        }
+
+        // 页面加载
+        window.onload = function() {
+            createParticles();
+            loadCrops();
+        };
+
+        // 加载作物列表
+        async function loadCrops() {
+            try {
+                const response = await fetch('/api/v2/crops');
+                const data = await response.json();
+
+                if (data.success) {
+                    crops = data.crops;
+                    displayCrops();
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+                showToast('加载作物列表失败', 'error');
+            }
+        }
+
+        // 显示作物列表
+        function displayCrops() {
+            const container = document.getElementById('crops-container');
+
+            if (crops.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">🌱</div>
+                        <h3>还没有作物</h3>
+                        <p>点击"新建作物"开始管理你的第一块田</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '';
+            crops.forEach((crop, index) => {
+                const statusClass = crop.status === '生长中' ? 'status-growing' : 'status-harvested';
+                
+                html += `
+                    <div class="crop-card" onclick="viewCrop(${crop.id})" style="animation-delay: ${index * 0.1}s;">
+                        <!-- 删除按钮（左上角） -->
+                        <div onclick="event.stopPropagation();">
+                            <button class="delete-btn-float" onclick="deleteCropFromCard(${crop.id})" title="删除作物">
+                                ×
+                            </button>
+                        </div>
+                        
+                        <div class="crop-header">
+                            <div class="crop-name">${crop.name}</div>
+                            <div class="crop-status ${statusClass}">${crop.status}</div>
+                        </div>
+
+                        <div style="color: #666; margin-bottom: 15px;">
+                            <div>🌾 ${crop.crop_type}${crop.variety ? ' - ' + crop.variety : ''}</div>
+                            ${crop.area ? `<div>📏 ${crop.area}亩</div>` : ''}
+                            ${crop.planting_date ? `<div>📅 播种于 ${crop.planting_date}</div>` : ''}
+                            <div>📊 生长${crop.growth_days}天</div>
+                        </div>
+
+                        <div class="crop-stats">
+                            <div class="stat-item">
+                                <div class="stat-value">${crop.record_count}</div>
+                                <div class="stat-label">每日记录</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value">${crop.event_count}</div>
+                                <div class="stat-label">关键事件</div>
+                            </div>
+                        </div>
+
+                        ${crop.latest_date ? `
+                            <div class="latest-data">
+                                <div class="label">最新数据（${crop.latest_date}）</div>
+                                <div class="value">
+                                    ${crop.latest_temperature ? `🌡️ ${crop.latest_temperature}°C` : ''}
+                                    ${crop.latest_humidity ? `💧 ${crop.latest_humidity}%` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <div class="crop-actions" onclick="event.stopPropagation()">
+                            <button class="btn-small btn-record" onclick="quickRecord(${crop.id})">
+                                📝 快速记录
+                            </button>
+                            <button class="btn-small btn-view" onclick="viewCrop(${crop.id})">
+                                👁️ 查看详情
+                            </button>
+                            <button class="btn-small btn-ai" onclick="openAIAnalysis(${crop.id})">
+                                🤖 快速分析
+                            </button>
+                            <button class="btn-small btn-ai" style="animation: none; background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);" onclick="openAIChat(${crop.id})">
+                                💬 AI助手
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // 模态框操作
+        function openAddModal() {
+            document.getElementById('add-modal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('add-modal').classList.remove('show');
+        }
+
+        // 添加作物表单提交
+        document.getElementById('add-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('name').value,
+                crop_type: document.getElementById('crop_type').value,
+                variety: document.getElementById('variety').value,
+                area: document.getElementById('area').value,
+                planting_date: document.getElementById('planting_date').value,
+                expected_harvest_date: document.getElementById('expected_harvest_date').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch('/api/v2/crops', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('作物创建成功！', 'success');
+                    closeModal();
+                    document.getElementById('add-form').reset();
+                    loadCrops();
+                } else {
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                showToast('创建失败', 'error');
+            }
+        });
+
+        // 快速记录
+        function quickRecord(cropId) {
+            window.location.href = `/crop/${cropId}/quick-record`;
+        }
+
+        // 查看作物详情
+        function viewCrop(cropId) {
+            window.location.href = `/crop/${cropId}`;
+        }
+
+        // 删除作物
+        function deleteCropFromCard(cropId) {
+            deleteCrop(cropId);
+        }
+
+        async function deleteCrop(cropId) {
+            const crop = crops.find(c => c.id === cropId);
+            if (!confirm(`确定要删除"${crop.name}"吗？\n这将删除所有相关记录！`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v2/crops/${cropId}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('已删除', 'success');
+                    loadCrops();
+                } else {
+                    showToast('删除失败', 'error');
+                }
+            } catch (error) {
+                showToast('删除失败', 'error');
+            }
+        }
+
+        // ========== AI快速分析功能 ==========
+
+        function openAIAnalysis(cropId) {
+            currentAnalysisCropId = cropId;
+            const crop = crops.find(c => c.id === cropId);
+            
+            if (!crop) return;
+            
+            document.getElementById('ai-overlay').classList.add('show');
+            document.getElementById('ai-sidebar').classList.add('show');
+            document.getElementById('ai-crop-name').textContent = crop.name;
+            
+            showAnalysisProgress();
+            performAIAnalysis(cropId);
+        }
+
+        function closeAISidebar() {
+            document.getElementById('ai-overlay').classList.remove('show');
+            document.getElementById('ai-sidebar').classList.remove('show');
+        }
+
+        function showAnalysisProgress() {
+            const content = document.getElementById('ai-content');
+            content.innerHTML = `
+                <div class="analysis-progress">
+                    <div class="spinner"></div>
+                    <div class="progress-text typing-effect">🔍 正在分析作物数据...</div>
+                    <div class="progress-text" style="font-size: 0.9em; color: #999; margin-top: 10px;">
+                        ✓ 收集最近7天数据<br>
+                        ✓ AI模型分析中<br>
+                        ✓ 生成专业建议
+                    </div>
+                </div>
+            `;
+        }
+
+        async function performAIAnalysis(cropId) {
+            try {
+                const response = await fetch(`/api/v2/analysis/quick/${cropId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ days: 7 })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    setTimeout(() => {
+                        displayAnalysisResult(data.analysis);
+                    }, 1500);
+                } else {
+                    showAnalysisError(data.error);
+                }
+            } catch (error) {
+                showAnalysisError('分析失败，请重试');
+            }
+        }
+
+        function displayAnalysisResult(analysis) {
+            const content = document.getElementById('ai-content');
+            
+            content.innerHTML = `
+                <div class="analysis-card">
+                    <div class="analysis-icon">📊</div>
+                    <div class="analysis-title">生长评估</div>
+                    <div class="analysis-content">
+                        ${analysis.growth_evaluation || '数据不足，无法评估'}
+                    </div>
+                    ${analysis.growth_score ? `
+                        <div class="score-bar">
+                            <div class="score-fill animate" style="--score-width: ${analysis.growth_score}%">
+                                ${analysis.growth_score}分
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="analysis-card">
+                    <div class="analysis-icon">💊</div>
+                    <div class="analysis-title">施肥建议</div>
+                    <div class="analysis-content">
+                        ${analysis.fertilizer_advice || '当前无需施肥'}
+                    </div>
+                    ${analysis.fertilizer_suggestions ? `
+                        <ul class="suggestion-list">
+                            ${analysis.fertilizer_suggestions.map((s, i) => `
+                                <li class="suggestion-item">
+                                    <span class="suggestion-icon">✓</span>
+                                    <span>${s}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+
+                <div class="analysis-card">
+                    <div class="analysis-icon">🐛</div>
+                    <div class="analysis-title">病虫害预测</div>
+                    <div class="analysis-content">
+                        ${analysis.pest_prediction || '当前风险较低'}
+                    </div>
+                    ${analysis.pest_risk ? `
+                        <div style="margin-top: 10px;">
+                            <span style="padding: 5px 15px; background: ${
+                                analysis.pest_risk === '低' ? '#d4edda' : 
+                                analysis.pest_risk === '中' ? '#fff3cd' : '#f8d7da'
+                            }; color: ${
+                                analysis.pest_risk === '低' ? '#155724' : 
+                                analysis.pest_risk === '中' ? '#856404' : '#721c24'
+                            }; border-radius: 15px; font-weight: bold;">
+                                风险等级：${analysis.pest_risk}
+                            </span>
+                        </div>
+                    ` : ''}
+                </div>
+
+                <div class="ai-actions">
+                    <button class="btn-save-report" style="background: #17a2b8;" onclick="viewAnalysisHistory()">
+                        📋 查看历史
+                    </button>
+                </div>
+            `;
+
+            setTimeout(() => {
+                const scoreFill = content.querySelector('.score-fill');
+                if (scoreFill) {
+                    scoreFill.classList.add('animate');
+                }
+            }, 100);
+        }
+
+        function showAnalysisError(message) {
+            const content = document.getElementById('ai-content');
+            content.innerHTML = `
+                <div style="text-align: center; padding: 60px 20px; color: #999;">
+                    <div style="font-size: 5em;">😔</div>
+                    <p style="font-size: 1.2em; margin-top: 20px;">${message}</p>
+                    <button class="btn-primary" style="margin-top: 20px;" onclick="closeAISidebar()">
+                        关闭
+                    </button>
+                </div>
+            `;
+        }
+
+        // ========== 分析历史功能 ==========
+
+        async function viewAnalysisHistory() {
+            const content = document.getElementById('ai-content');
+            
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px;">加载历史记录...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`/api/v2/analysis/history/${currentAnalysisCropId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayAnalysisHistoryList(data.histories);
+                } else {
+                    content.innerHTML = `
+                        <div style="text-align: center; padding: 60px; color: #999;">
+                            <div style="font-size: 5em;">😔</div>
+                            <p style="font-size: 1.2em; margin-top: 20px;">加载失败</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: #999;">
+                        <div style="font-size: 5em;">😔</div>
+                        <p style="font-size: 1.2em; margin-top: 20px;">网络错误</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayAnalysisHistoryList(histories) {
+            const content = document.getElementById('ai-content');
+            
+            if (!histories || histories.length === 0) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: #999;">
+                        <div style="font-size: 5em;">📋</div>
+                        <p style="font-size: 1.2em; margin-top: 20px;">暂无分析历史</p>
+                        <p style="margin-top: 10px;">进行一次分析后，记录会自动保存</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            let html = `
+                <div style="margin-bottom: 20px;">
+                    <h3 style="color: #333;">📋 分析历史记录</h3>
+                    <p style="color: #666; margin-top: 10px;">共 ${histories.length} 条记录</p>
+                </div>
+            `;
+            
+            histories.forEach((history, index) => {
+                const scoreColor = history.growth_score >= 80 ? '#4caf50' : 
+                                  history.growth_score >= 60 ? '#ff9800' : '#f44336';
+                
+                html += `
+                    <div class="analysis-card" style="cursor: pointer;" onclick="viewHistoryDetail(${history.id})">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div>
+                                <strong style="font-size: 1.1em;">${history.analysis_date}</strong>
+                                <span style="margin-left: 10px; color: #999;">${history.analysis_type}</span>
+                            </div>
+                            ${history.growth_score ? `
+                                <div style="background: ${scoreColor}; color: white; padding: 5px 15px; border-radius: 15px; font-weight: bold;">
+                                    ${history.growth_score}分
+                                </div>
+                            ` : ''}
+                        </div>
+                        
+                        <div style="color: #666; line-height: 1.6;">
+                            <div>📊 ${history.growth_evaluation ? history.growth_evaluation.substring(0, 50) + '...' : '无评估'}</div>
+                            <div style="margin-top: 5px;">💊 ${history.fertilizer_advice ? history.fertilizer_advice.substring(0, 50) + '...' : '无建议'}</div>
+                        </div>
+                        
+                        <div style="margin-top: 10px; text-align: right; color: #667eea;">
+                            点击查看详情 →
+                        </div>
+                    </div>
+                `;
+            });
+            
+            content.innerHTML = html;
+        }
+
+        async function viewHistoryDetail(historyId) {
+            const content = document.getElementById('ai-content');
+            
+            content.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 20px;">加载详情...</p>
+                </div>
+            `;
+            
+            try {
+                const response = await fetch(`/api/v2/analysis/history/detail/${historyId}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayAnalysisResult(data.full_analysis);
+                    
+                    const actionsDiv = content.querySelector('.ai-actions');
+                    if (actionsDiv) {
+                        actionsDiv.innerHTML = `
+                            <button class="btn-save-report" style="background: #6c757d;" onclick="viewAnalysisHistory()">
+                                ← 返回历史列表
+                            </button>
+                        `;
+                    }
+                }
+            } catch (error) {
+                content.innerHTML = `
+                    <div style="text-align: center; padding: 60px; color: #999;">
+                        <div style="font-size: 5em;">😔</div>
+                        <p style="font-size: 1.2em; margin-top: 20px;">加载失败</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ========== AI对话助手功能 ==========
+
+        function openAIChat(cropId) {
+            currentAnalysisCropId = cropId;
+            const crop = crops.find(c => c.id === cropId);
+            
+            if (!crop) return;
+            
+            chatHistory = [];
+            
+            document.getElementById('ai-overlay').classList.add('show');
+            document.getElementById('ai-sidebar').classList.add('show');
+            document.getElementById('ai-crop-name').textContent = crop.name;
+            
+            displayChatInterface(crop);
+        }
+
+        function displayChatInterface(crop) {
+            const content = document.getElementById('ai-content');
+            
+            content.innerHTML = `
+                <div class="ai-chat-container">
+                    <div class="mode-switch">
+                        <button class="mode-btn" onclick="switchMode('quick', event)">
+                            🚀 快速分析
+                        </button>
+                        <button class="mode-btn active" onclick="switchMode('chat', event)">
+                            💬 对话助手
+                        </button>
+                    </div>
+
+                    <div id="chat-content">
+                        <!-- 内容将动态生成 -->
+                    </div>
+                </div>
+            `;
+
+            switchMode('chat', { target: content.querySelector('.mode-btn.active') });
+        }
+
+        function switchMode(mode, event) {
+            currentChatMode = mode;
+            
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+            
+            if (mode === 'quick') {
+                showAnalysisProgress();
+                performAIAnalysis(currentAnalysisCropId);
+            } else {
+                const crop = crops.find(c => c.id === currentAnalysisCropId);
+                showChatMode(crop);
+            }
+        }
+
+        function showChatMode(crop) {
+            const chatContent = document.getElementById('chat-content');
+            
+            if (chatHistory.length === 0) {
+                chatHistory.push({
+                    role: 'ai',
+                    content: `你好！我是你的农业助手农宝🌾\n\n我已经了解了你的${crop.name}的情况：\n• 生长${crop.growth_days}天\n• 最近记录${crop.record_count}条\n${crop.avg_temperature_7d ? `• 平均温度${crop.avg_temperature_7d}°C\n` : ''}${crop.avg_humidity_7d ? `• 平均湿度${crop.avg_humidity_7d}%` : ''}\n\n有什么我可以帮你的吗？`
+                });
+            }
+            
+            chatContent.innerHTML = `
+                <div class="ai-welcome">
+                    <div class="ai-welcome-title">💬 AI农业助手</div>
+                    <div class="ai-crop-info">
+                        正在为"${crop.name}"提供智能服务
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    ${renderChatMessages()}
+                </div>
+
+                <div class="quick-questions">
+                    <div class="quick-questions-title">💡 快捷问题（点击即问）：</div>
+                    <div class="quick-question-grid">
+                        <button class="quick-question-btn" onclick="askQuickQuestion('当前生长阶段如何？')">
+                            🌱 当前生长阶段
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('需要施肥吗？')">
+                            💊 需要施肥吗
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('病虫害风险评估')">
+                            🐛 病虫害风险
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('什么时候收获？')">
+                            ⏰ 什么时候收获
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('如何提高产量？')">
+                            📈 如何提高产量
+                        </button>
+                        <button class="quick-question-btn" onclick="askQuickQuestion('分析成本和收益')">
+                            💰 成本分析
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="user-input" placeholder="输入你的问题..." onkeypress="handleInputKeypress(event)">
+                    <button class="chat-send-btn" id="send-btn" onclick="sendMessage()">发送</button>
+                </div>
+            `;
+
+            scrollToBottom();
+        }
+
+        function renderChatMessages() {
+            return chatHistory.map(msg => {
+                const isAI = msg.role === 'ai';
+                return `
+                    <div class="message ${isAI ? 'ai' : 'user'}">
+                        <div class="message-avatar">${isAI ? '🤖' : '👤'}</div>
+                        <div class="message-bubble">
+                            ${msg.content.replace(/\n/g, '<br>')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const question = input.value.trim();
+            
+            if (!question) return;
+            
+            chatHistory.push({
+                role: 'user',
+                content: question
+            });
+            
+            input.value = '';
+            updateChatMessages();
+            showTypingIndicator();
+            
+            try {
+                const response = await fetch(`/api/v2/analysis/chat/${currentAnalysisCropId}`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        question: question,
+                        history: chatHistory.slice(0, -1)
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    removeTypingIndicator();
+                    
+                    chatHistory.push({
+                        role: 'ai',
+                        content: data.answer
+                    });
+                    
+                    updateChatMessages();
+                } else {
+                    removeTypingIndicator();
+                    showToast(data.error, 'error');
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                showToast('网络错误', 'error');
+            }
+        }
+
+        function askQuickQuestion(question) {
+            const input = document.getElementById('user-input');
+            input.value = question;
+            sendMessage();
+        }
+
+        function updateChatMessages() {
+            const messagesContainer = document.getElementById('chat-messages');
+            messagesContainer.innerHTML = renderChatMessages();
+            scrollToBottom();
+        }
+
+        function showTypingIndicator() {
+            const messagesContainer = document.getElementById('chat-messages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'message ai';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">🤖</div>
+                <div class="typing-indicator">
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            scrollToBottom();
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        function scrollToBottom() {
+            const messagesContainer = document.getElementById('chat-messages');
+            if (messagesContainer) {
+                setTimeout(() => {
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 100);
+            }
+        }
+
+        function handleInputKeypress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

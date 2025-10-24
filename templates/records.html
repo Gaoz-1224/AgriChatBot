@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据记录 - 农业智能管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .header h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .nav-tabs a {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            background: #f5f5f5;
+            color: #666;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs a.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .nav-tabs a:hover {
+            background: #5568d3;
+            color: white;
+        }
+
+        .add-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .add-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .alert {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .alert a:hover {
+            text-decoration: underline;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            color: #666;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            grid-column: 1 / -1;
+            min-height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .records-section h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-bar select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .records-table thead {
+            background: #667eea;
+            color: white;
+        }
+
+        .records-table th,
+        .records-table td {
+            padding: 15px;
+            text-align: left;
+        }
+
+        .records-table tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.3s;
+        }
+
+        .records-table tbody tr:hover {
+            background: #f8f9fa;
+        }
+
+        .btn-delete {
+            background: #f44336;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-delete:hover {
+            background: #d32f2f;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #999;
+        }
+
+        .empty-state .icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 农业数据记录</h1>
+            <p>记录作物的温度、湿度等关键数据</p>
+        </div>
+
+        <div class="nav-tabs">
+            <a href="/">🏠 首页</a>
+            <a href="/chat">💬 AI问答</a>
+            <a href="/crops">🌱 作物管理</a>
+            <a href="/records" class="active">📝 数据记录</a>
+            <a href="/analysis">📊 智能分析</a>
+            <a href="/knowledge">📚 知识库</a>
+        </div>
+
+        <div class="success-message" id="success-message"></div>
+
+        <div class="add-section">
+            <h2>➕ 添加新记录</h2>
+
+            <div class="alert" id="no-crops-alert" style="display: none;">
+                ⚠️ 您还没有创建任何作物！请先 <a href="/crops">创建作物</a>，然后再添加记录。
+            </div>
+
+            <form id="add-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>选择作物 *</label>
+                        <select id="crop_db_id" required>
+                            <option value="">请选择作物</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>日期 *</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>温度 (°C) *</label>
+                        <input type="number" id="temperature" step="0.1" required placeholder="例如：25.5">
+                    </div>
+
+                    <div class="form-group">
+                        <label>湿度 (%) *</label>
+                        <input type="number" id="humidity" step="0.1" min="0" max="100" required placeholder="例如：65">
+                    </div>
+
+                    <div class="form-group" style="grid-column: 1 / -1;">
+                        <label>备注（可选）</label>
+                        <textarea id="notes" placeholder="记录作物的特殊情况..."></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary">保存记录</button>
+            </form>
+        </div>
+
+        <div class="records-section">
+            <h2>📋 历史记录</h2>
+
+            <div class="filter-bar">
+                <label>筛选作物：</label>
+                <select id="filter-crop" onchange="filterRecords()">
+                    <option value="">全部作物</option>
+                </select>
+            </div>
+
+            <div id="records-container">
+                <div class="empty-state">
+                    <div class="icon">📝</div>
+                    <p>暂无记录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allRecords = [];
+        let allCrops = [];
+
+        // 设置今天为默认日期
+        document.getElementById('date').valueAsDate = new Date();
+
+        // 页面加载时执行
+        window.onload = function() {
+            loadCrops();
+            loadRecords();
+        };
+
+        // 加载作物列表
+        async function loadCrops() {
+            try {
+                const response = await fetch('/api/crops');
+                const data = await response.json();
+
+                if (data.success) {
+                    allCrops = data.crops;
+
+                    const cropSelect = document.getElementById('crop_db_id');
+                    const filterSelect = document.getElementById('filter-crop');
+
+                    // 清空选项
+                    cropSelect.innerHTML = '<option value="">请选择作物</option>';
+                    filterSelect.innerHTML = '<option value="">全部作物</option>';
+
+                    if (allCrops.length === 0) {
+                        document.getElementById('no-crops-alert').style.display = 'block';
+                        cropSelect.disabled = true;
+                        return;
+                    }
+
+                    // 添加作物选项
+                    allCrops.forEach(crop => {
+                        const option1 = document.createElement('option');
+                        option1.value = crop.id;
+                        option1.textContent = crop.display_name;
+                        cropSelect.appendChild(option1);
+
+                        const option2 = document.createElement('option');
+                        option2.value = crop.id;
+                        option2.textContent = crop.display_name;
+                        filterSelect.appendChild(option2);
+                    });
+
+                    // 如果URL中有crop_id参数，自动选中
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const cropId = urlParams.get('crop_id');
+                    if (cropId) {
+                        document.getElementById('filter-crop').value = cropId;
+                        filterRecords();
+                    }
+                }
+            } catch (error) {
+                console.error('加载作物失败:', error);
+            }
+        }
+
+        // 加载记录
+        async function loadRecords() {
+            try {
+                const response = await fetch('/api/records');
+                const data = await response.json();
+
+                if (data.success) {
+                    allRecords = data.records;
+                    displayRecords(allRecords);
+                }
+            } catch (error) {
+                console.error('加载记录失败:', error);
+            }
+        }
+
+        // 显示记录
+        function displayRecords(records) {
+            const container = document.getElementById('records-container');
+
+            if (records.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📝</div>
+                        <p>暂无记录，添加第一条记录吧！</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table class="records-table">
+                    <thead>
+                        <tr>
+                            <th>日期</th>
+                            <th>作物</th>
+                            <th>温度(°C)</th>
+                            <th>湿度(%)</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            records.forEach(record => {
+                tableHTML += `
+                    <tr>
+                        <td>${record.date}</td>
+                        <td>${record.display_name || record.crop_name}</td>
+                        <td>${record.temperature}</td>
+                        <td>${record.humidity}</td>
+                        <td>${record.notes || '-'}</td>
+                        <td>
+                            <button class="btn-delete" onclick="deleteRecord(${record.id})">删除</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+
+            container.innerHTML = tableHTML;
+        }
+
+        // 筛选记录
+        function filterRecords() {
+            const cropId = document.getElementById('filter-crop').value;
+
+            if (!cropId) {
+                displayRecords(allRecords);
+                return;
+            }
+
+            const filtered = allRecords.filter(r => r.crop_db_id == cropId);
+            displayRecords(filtered);
+        }
+
+        // 添加记录
+        document.getElementById('add-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                crop_db_id: parseInt(document.getElementById('crop_db_id').value),
+                date: document.getElementById('date').value,
+                temperature: parseFloat(document.getElementById('temperature').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                notes: document.getElementById('notes').value
+            };
+
+            if (!formData.crop_db_id) {
+                alert('请选择作物');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/records', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('记录添加成功！');
+                    
+                    // 重置表单（除了作物选择）
+                    document.getElementById('temperature').value = '';
+                    document.getElementById('humidity').value = '';
+                    document.getElementById('notes').value = '';
+                    document.getElementById('date').valueAsDate = new Date();
+
+                    loadRecords();
+                } else {
+                    alert('添加失败：' + data.error);
+                }
+            } catch (error) {
+                alert('添加失败：网络错误');
+                console.error('Error:', error);
+            }
+        });
+
+        // 删除记录
+        async function deleteRecord(id) {
+            if (!confirm('确定要删除这条记录吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/records/${id}`, {
+                    method: 'DELETE'
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showSuccess('记录已删除');
+                    loadRecords();
+                } else {
+                    alert('删除失败：' + data.error);
+                }
+            } catch (error) {
+                alert('删除失败：网络错误');
+            }
+        }
+
+        // 显示成功消息
+        function showSuccess(message) {
+            const msgElement = document.getElementById('success-message');
+            msgElement.textContent = message;
+            msgElement.classList.add('show');
+
+            setTimeout(() => {
+                msgElement.classList.remove('show');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>

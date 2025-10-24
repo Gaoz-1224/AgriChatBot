@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速记录 - 农业智能管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-btn {
+            background: white;
+            color: #667eea;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .record-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .crop-name {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .today-date {
+            text-align: center;
+            color: #667eea;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #555;
+            margin-bottom: 10px;
+            font-weight: 500;
+            font-size: 1.1em;
+        }
+
+        .input-with-unit {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .input-with-unit input {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.5em;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .input-with-unit .unit {
+            font-size: 1.2em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1.1em;
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .quick-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .quick-btn {
+            padding: 10px;
+            background: #f8f9fa;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-btn:hover {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: #28a745;
+            color: white;
+            padding: 18px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+
+        .btn-submit:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .last-record {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .last-record .title {
+            font-weight: bold;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .last-record .data {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="history.back()">
+            ← 返回
+        </button>
+
+        <div class="record-card">
+            <div class="crop-name" id="crop-name"><!-- 作物名称 --></div>
+            <div class="today-date" id="today-date"><!-- 今天日期 --></div>
+
+            <div class="last-record" id="last-record" style="display: none;">
+                <div class="title">📊 上次记录</div>
+                <div class="data" id="last-data"></div>
+            </div>
+
+            <form id="quick-form">
+                <div class="form-group">
+                    <label>🌡️ 温度</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="temperature" step="0.1" placeholder="25.0" required>
+                        <span class="unit">°C</span>
+                    </div>
+                    <div class="quick-options">
+                        <button type="button" class="quick-btn" onclick="setTemp(20)">20°C</button>
+                        <button type="button" class="quick-btn" onclick="setTemp(25)">25°C</button>
+                        <button type="button" class="quick-btn" onclick="setTemp(30)">30°C</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>💧 湿度</label>
+                    <div class="input-with-unit">
+                        <input type="number" id="humidity" step="0.1" min="0" max="100" placeholder="60" required>
+                        <span class="unit">%</span>
+                    </div>
+                    <div class="quick-options">
+                        <button type="button" class="quick-btn" onclick="setHumidity(50)">50%</button>
+                        <button type="button" class="quick-btn" onclick="setHumidity(60)">60%</button>
+                        <button type="button" class="quick-btn" onclick="setHumidity(70)">70%</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>☀️ 天气（可选）</label>
+                    <select id="weather">
+                        <option value="">请选择</option>
+                        <option value="晴">☀️ 晴</option>
+                        <option value="多云">⛅ 多云</option>
+                        <option value="阴">☁️ 阴</option>
+                        <option value="雨">🌧️ 雨</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>🌱 生长状态（可选）</label>
+                    <select id="growth_status">
+                        <option value="">请选择</option>
+                        <option value="长势良好">✅ 长势良好</option>
+                        <option value="正常生长">👌 正常生长</option>
+                        <option value="生长缓慢">⚠️ 生长缓慢</option>
+                        <option value="发现病虫害">🐛 发现病虫害</option>
+                        <option value="需要施肥">💊 需要施肥</option>
+                        <option value="需要浇水">💧 需要浇水</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>📝 备注（可选）</label>
+                    <textarea id="notes" placeholder="记录今天的特殊情况..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ✅ 保存今日记录
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const cropId = {{ crop_id }};
+        let cropData = null;
+
+        window.onload = function() {
+            loadCropInfo();
+            setTodayDate();
+        };
+
+        function setTodayDate() {
+            const today = new Date();
+            const dateStr = today.toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+            document.getElementById('today-date').textContent = dateStr;
+        }
+
+        async function loadCropInfo() {
+            try {
+                const response = await fetch(`/api/v2/crops/${cropId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    cropData = data.crop;
+                    document.getElementById('crop-name').textContent = cropData.name;
+
+                    if (data.records && data.records.length > 0) {
+                        const lastRecord = data.records[0];
+                        document.getElementById('last-record').style.display = 'block';
+                        document.getElementById('last-data').innerHTML = `
+                            ${lastRecord.date} - 
+                            温度${lastRecord.temperature}°C, 
+                            湿度${lastRecord.humidity}%
+                        `;
+
+                        document.getElementById('temperature').value = lastRecord.temperature;
+                        document.getElementById('humidity').value = lastRecord.humidity;
+                    }
+                }
+            } catch (error) {
+                console.error('加载失败:', error);
+            }
+        }
+
+        function setTemp(value) {
+            document.getElementById('temperature').value = value;
+        }
+
+        function setHumidity(value) {
+            document.getElementById('humidity').value = value;
+        }
+
+        document.getElementById('quick-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                crop_id: cropId,
+                date: new Date().toISOString().split('T')[0],
+                temperature: parseFloat(document.getElementById('temperature').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                weather: document.getElementById('weather').value,
+                growth_status: document.getElementById('growth_status').value,
+                notes: document.getElementById('notes').value
+            };
+
+            try {
+                const response = await fetch('/api/v2/daily-records', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('✅ 记录保存成功！');
+                    window.location.href = `/crop/${cropId}`;
+                } else {
+                    alert('❌ ' + data.error);
+                }
+            } catch (error) {
+                alert('❌ 保存失败');
+            }
+        });
+    </script>
+</body>
+</html>

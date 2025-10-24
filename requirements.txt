@@ -1,0 +1,31 @@
+# Flask Web框架
+Flask
+Flask-SQLAlchemy
+flask-cors
+gunicorn
+
+# 环境变量管理
+python-dotenv
+
+# 数据库
+SQLAlchemy
+
+# AI相关
+langchain
+langchain-community
+langchain-core
+langchain-text-splitters
+dashscope
+
+# 向量数据库
+chromadb
+
+# 文档处理
+PyPDF2
+python-docx
+
+# 工具库
+requests
+pydantic
+pydantic-settings
+typing_extensions

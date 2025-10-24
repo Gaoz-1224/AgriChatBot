@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>农业智能管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 动态背景粒子 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(50px);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px 20px;
+        }
+
+        /* 🥟 超可爱胖嘟嘟小笼包 - 小农宝 */
+        .xiaonongbao {
+            position: fixed;
+            top: 160px;
+            left: 70px;
+            width: 200px;
+            height: 200px;
+            z-index: 100;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .mascot-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            animation: idle-float 4s ease-in-out infinite;
+        }
+
+        /* 闲置浮动动画 */
+        @keyframes idle-float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            25% {
+                transform: translateY(-8px) rotate(-2deg);
+            }
+            50% {
+                transform: translateY(-12px) rotate(0deg);
+            }
+            75% {
+                transform: translateY(-8px) rotate(2deg);
+            }
+        }
+
+        /* 小笼包主体（胖嘟嘟的身体） */
+        .baozi-main {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 140px;
+            height: 130px;
+            background: linear-gradient(135deg, #FFF5E1 0%, #FFE9C5 50%, #FFDBA4 100%);
+            border-radius: 50% 50% 48% 48% / 55% 55% 45% 45%;
+            box-shadow: 
+                0 15px 40px rgba(255, 220, 160, 0.6),
+                inset 0 -15px 25px rgba(255, 200, 140, 0.3),
+                inset 0 5px 15px rgba(255, 255, 255, 0.4);
+            position: relative;
+        }
+
+        /* 小笼包顶部褶皱（更真实） */
+        .baozi-top {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85px;
+            height: 50px;
+        }
+
+        .pleat {
+            position: absolute;
+            width: 16px;
+            height: 30px;
+            background: linear-gradient(135deg, #FFE9C5 0%, #FFDBA4 100%);
+            border-radius: 8px 8px 0 0;
+            transform-origin: bottom center;
+            box-shadow: 
+                inset 2px 0 4px rgba(255, 200, 140, 0.4),
+                0 2px 6px rgba(255, 220, 160, 0.3);
+        }
+
+        /* 褶皱位置（8个褶皱，更像小笼包） */
+        .pleat:nth-child(1) { left: 35px; top: 0; transform: rotate(0deg); }
+        .pleat:nth-child(2) { left: 22px; top: 6px; transform: rotate(-35deg); }
+        .pleat:nth-child(3) { left: 48px; top: 6px; transform: rotate(35deg); }
+        .pleat:nth-child(4) { left: 12px; top: 15px; transform: rotate(-55deg); }
+        .pleat:nth-child(5) { left: 58px; top: 15px; transform: rotate(55deg); }
+        .pleat:nth-child(6) { left: 5px; top: 25px; transform: rotate(-75deg); opacity: 0.7; }
+        .pleat:nth-child(7) { left: 65px; top: 25px; transform: rotate(75deg); opacity: 0.7; }
+        .pleat:nth-child(8) { left: 35px; top: 8px; transform: rotate(0deg) scale(0.9); }
+
+        /* 超大可爱眼睛 */
+        .baozi-eyes {
+            position: absolute;
+            top: 42%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 35px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .eye {
+            width: 26px;
+            height: 26px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 眼珠 */
+        .eye::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #2c3e50;
+            border-radius: 50%;
+            top: 6px;
+            left: 6px;
+            transition: all 0.2s;
+        }
+
+        /* 眼睛高光 */
+        .eye::before {
+            content: '';
+            position: absolute;
+            width: 7px;
+            height: 7px;
+            background: white;
+            border-radius: 50%;
+            top: 7px;
+            left: 10px;
+            z-index: 1;
+        }
+
+        /* 眼睛眨眼动画 */
+        @keyframes auto-blink {
+            0%, 90%, 100% { transform: scaleY(1); }
+            95% { transform: scaleY(0.1); }
+        }
+
+        .mascot-container .eye {
+            animation: auto-blink 6s infinite;
+        }
+
+        /* 粉嫩腮红 */
+        .baozi-blush {
+            position: absolute;
+            width: 22px;
+            height: 14px;
+            background: radial-gradient(circle, rgba(255, 182, 193, 0.7), rgba(255, 192, 203, 0.3));
+            border-radius: 50%;
+            top: 50%;
+            filter: blur(4px);
+        }
+
+        .baozi-blush.left {
+            left: 6px;
+        }
+
+        .baozi-blush.right {
+            right: 6px;
+        }
+
+        /* 超萌笑脸 */
+        .baozi-smile {
+            position: absolute;
+            top: 62%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 20px;
+            border: 5px solid #FF69B4;
+            border-top: none;
+            border-radius: 0 0 25px 25px;
+        }
+
+        /* 小舌头 */
+        .baozi-tongue {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 8px;
+            background: #FF8FA3;
+            border-radius: 0 0 6px 6px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .xiaonongbao:hover .baozi-tongue {
+            opacity: 1;
+        }
+
+        /* 胖胖的小手 */
+        .baozi-arm {
+            position: absolute;
+            width: 35px;
+            height: 15px;
+            background: linear-gradient(90deg, #FFF5E1 0%, #FFE9C5 100%);
+            border-radius: 8px;
+            top: 52%;
+            box-shadow: 0 3px 8px rgba(255, 220, 160, 0.4);
+        }
+
+        .baozi-arm.left {
+            left: -10px;
+            transform: rotate(-20deg);
+            transform-origin: right center;
+        }
+
+        .baozi-arm.right {
+            right: -10px;
+            transform: rotate(20deg);
+            transform-origin: left center;
+        }
+
+        /* 小手指 */
+        .baozi-hand {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #FFE9C5;
+            border-radius: 50%;
+            bottom: -2px;
+        }
+
+        .baozi-arm.left .baozi-hand {
+            left: -4px;
+        }
+
+        .baozi-arm.right .baozi-hand {
+            right: -4px;
+        }
+
+        /* 小脚脚 */
+        .baozi-feet {
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 25px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .foot {
+            width: 34px;
+            height: 22px;
+            background: linear-gradient(135deg, #FFE9C5 0%, #FFDBA4 100%);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 0 4px 10px rgba(255, 220, 160, 0.5);
+            position: relative;
+        }
+
+        /* 小脚趾 */
+        .foot::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 8px;
+            background: rgba(255, 200, 140, 0.3);
+            border-radius: 50%;
+            bottom: 3px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* 热气（冒热气效果） */
+        .steam {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 50%;
+            top: -8px;
+            opacity: 0;
+            animation: steam-rise 3s ease infinite;
+        }
+
+        .steam:nth-child(1) { left: 35%; animation-delay: 0s; }
+        .steam:nth-child(2) { left: 50%; animation-delay: 0.8s; }
+        .steam:nth-child(3) { left: 65%; animation-delay: 1.6s; }
+
+        @keyframes steam-rise {
+            0% {
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            15% {
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-50px) scale(1.8);
+                opacity: 0;
+            }
+        }
+
+        /* AI徽章 */
+        .ai-badge {
+            position: absolute;
+            top: -18px;
+            right: -18px;
+            width: 55px;
+            height: 55px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.7);
+            border: 5px solid white;
+            animation: ai-glow 2.5s ease infinite;
+        }
+
+        @keyframes ai-glow {
+            0%, 100% {
+                box-shadow: 0 6px 25px rgba(102, 126, 234, 0.7);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 8px 35px rgba(102, 126, 234, 0.95);
+                transform: scale(1.08);
+            }
+        }
+
+        .ai-badge .ai-text {
+            font-size: 16px;
+            line-height: 1;
+        }
+
+        .ai-badge .ai-icon {
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        /* 对话气泡 */
+        .speech-bubble {
+            position: absolute;
+            top: -85px;
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            background: white;
+            padding: 14px 24px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            white-space: nowrap;
+            font-size: 16px;
+            color: #333;
+            font-weight: 600;
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+        }
+
+        .speech-bubble::after {
+            content: '';
+            position: absolute;
+            bottom: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 14px solid white;
+        }
+
+        .xiaonongbao:hover .speech-bubble {
+            transform: translateX(-50%) scale(1) translateY(-8px);
+            opacity: 1;
+        }
+
+        /* ========== 互动动画 ========== */
+
+        /* 悬停放大 */
+        .xiaonongbao:hover .mascot-container {
+            animation: hover-excited 0.6s ease infinite;
+        }
+
+        @keyframes hover-excited {
+            0%, 100% {
+                transform: scale(1.1) translateY(0px);
+            }
+            50% {
+                transform: scale(1.15) translateY(-10px);
+            }
+        }
+
+        /* 悬停挥手 */
+        .xiaonongbao:hover .baozi-arm.left {
+            animation: wave-left-fast 0.5s ease infinite;
+        }
+
+        .xiaonongbao:hover .baozi-arm.right {
+            animation: wave-right-fast 0.5s ease infinite;
+        }
+
+        @keyframes wave-left-fast {
+            0%, 100% { transform: rotate(-20deg); }
+            50% { transform: rotate(-55deg); }
+        }
+
+        @keyframes wave-right-fast {
+            0%, 100% { transform: rotate(20deg); }
+            50% { transform: rotate(55deg); }
+        }
+
+        /* 悬停踏脚 */
+        .xiaonongbao:hover .foot {
+            animation: tap-feet 0.3s ease infinite;
+        }
+
+        @keyframes tap-feet {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(4px); }
+        }
+
+        /* 悬停笑容变大 */
+        .xiaonongbao:hover .baozi-smile {
+            animation: smile-wide 0.8s ease infinite;
+        }
+
+        @keyframes smile-wide {
+            0%, 100% { 
+                width: 40px; 
+                transform: translateX(-50%);
+            }
+            50% { 
+                width: 50px;
+                transform: translateX(-50%);
+            }
+        }
+
+        /* 悬停腮红跳动 */
+        .xiaonongbao:hover .baozi-blush {
+            animation: blush-beat 0.8s ease infinite;
+        }
+
+        @keyframes blush-beat {
+            0%, 100% { 
+                transform: scale(1);
+                background: radial-gradient(circle, rgba(255, 182, 193, 0.7), rgba(255, 192, 203, 0.3));
+            }
+            50% { 
+                transform: scale(1.3);
+                background: radial-gradient(circle, rgba(255, 140, 160, 0.9), rgba(255, 170, 180, 0.5));
+            }
+        }
+
+        /* 悬停眼睛跟随 */
+        .xiaonongbao:hover .eye::after {
+            animation: eye-follow-mouse 2s ease infinite;
+        }
+
+        @keyframes eye-follow-mouse {
+            0%, 100% { left: 6px; top: 6px; }
+            25% { left: 10px; top: 4px; }
+            50% { left: 6px; top: 8px; }
+            75% { left: 2px; top: 6px; }
+        }
+
+        /* ========== 自动动画（不悬停时） ========== */
+
+        /* 自动蹦跳 */
+        @keyframes auto-bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-25px);
+            }
+        }
+
+        .mascot-container.auto-bounce {
+            animation: auto-bounce 1s cubic-bezier(0.36, 0, 0.66, -0.56) !important;
+        }
+
+        /* 翻跟头 */
+        @keyframes auto-flip {
+            0% {
+                transform: rotateY(0deg) rotateZ(0deg);
+            }
+            25% {
+                transform: rotateY(90deg) rotateZ(-10deg);
+            }
+            50% {
+                transform: rotateY(180deg) rotateZ(0deg);
+            }
+            75% {
+                transform: rotateY(270deg) rotateZ(10deg);
+            }
+            100% {
+                transform: rotateY(360deg) rotateZ(0deg);
+            }
+        }
+
+        .mascot-container.auto-flip {
+            animation: auto-flip 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) !important;
+        }
+
+        /* 睡觉 */
+        @keyframes auto-sleep {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+            }
+            100% {
+                transform: translateY(5px) rotate(-15deg);
+            }
+        }
+
+        .mascot-container.auto-sleep {
+            animation: auto-sleep 2s ease-in-out !important;
+        }
+
+        .mascot-container.auto-sleep .eye {
+            animation: sleep-eyes 2s ease-in-out !important;
+        }
+
+        @keyframes sleep-eyes {
+            0%, 100% {
+                transform: scaleY(0.1);
+            }
+        }
+
+        .mascot-container.auto-sleep .baozi-smile {
+            width: 25px;
+            height: 12px;
+        }
+
+        /* Zzz睡眠符号 */
+        .sleep-z {
+            position: absolute;
+            top: -40px;
+            right: -30px;
+            font-size: 24px;
+            color: rgba(255, 255, 255, 0.8);
+            opacity: 0;
+            animation: sleep-z-float 2s ease-in-out infinite;
+        }
+
+        @keyframes sleep-z-float {
+            0% {
+                opacity: 0;
+                transform: translateY(0);
+            }
+            50% {
+                opacity: 1;
+                transform: translateY(-20px);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+        }
+
+        .mascot-container.auto-sleep .sleep-z {
+            opacity: 1;
+        }
+
+        /* 主标题区域 */
+        .hero {
+            text-align: center;
+            color: white;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-icon {
+            font-size: 4em;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.3));
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .hero h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(120deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2em;
+            opacity: 0.95;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* iOS风格液态卡片 */
+        .main-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(30px) saturate(180%);
+            border-radius: 28px;
+            padding: 45px 35px;
+            text-align: center;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: pointer;
+            text-decoration: none;
+            color: white;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 
+                0 8px 32px rgba(31, 38, 135, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: left 0.8s ease;
+        }
+
+        .feature-card:hover::before {
+            left: 100%;
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .feature-card:hover::after {
+            transform: scale(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px) scale(1.03);
+            background: rgba(255, 255, 255, 0.18);
+            box-shadow: 
+                0 25px 50px rgba(31, 38, 135, 0.35),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.2));
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: inline-block;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.2) rotateY(180deg);
+            filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.3));
+        }
+
+        .feature-title {
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-desc {
+            font-size: 1em;
+            opacity: 0.92;
+            line-height: 1.6;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 数据统计区域 */
+        .stats-container {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            border-radius: 25px;
+            padding: 30px;
+            margin: 50px auto 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+            max-width: 100%;
+        }
+
+        .stats-title {
+            text-align: center;
+            color: white;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            font-weight: 600;
+            opacity: 0.95;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            color: white;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 15px;
+            transition: all 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
+            flex-shrink: 0;
+        }
+
+        .stat-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.85;
+            margin-top: 3px;
+        }
+
+        /* 页脚 */
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            padding: 25px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            animation: fadeInUp 0.8s ease-out 0.8s both;
+        }
+
+        .footer p {
+            margin: 6px 0;
+            opacity: 0.9;
+        }
+
+        .footer a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .footer a:hover {
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .xiaonongbao {
+                top: 100px;
+                left: 30px;
+                width: 140px;
+                height: 140px;
+            }
+
+            .hero h1 {
+                font-size: 2.2em;
+            }
+
+            .hero-icon {
+                font-size: 3em;
+            }
+
+            .main-features {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-container {
+                padding: 20px;
+            }
+
+            .stat-item {
+                padding: 15px;
+            }
+
+            .stat-number {
+                font-size: 1.6em;
+            }
+
+            .stat-icon {
+                font-size: 2em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .xiaonongbao {
+                width: 120px;
+                height: 120px;
+            }
+
+            .hero h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 动态背景粒子 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 🥟 超可爱胖嘟嘟小笼包 - 小农宝 -->
+    <div class="xiaonongbao" id="mascot">
+        <div class="mascot-container" id="mascot-container">
+            <!-- 对话气泡 -->
+            <div class="speech-bubble" id="speech-bubble">你好！我是小农宝🥟</div>
+            
+            <!-- 睡眠符号 -->
+            <div class="sleep-z">Z z z</div>
+
+            <!-- 热气 -->
+            <div class="steam"></div>
+            <div class="steam"></div>
+            <div class="steam"></div>
+
+            <!-- 小笼包顶部褶皱 -->
+            <div class="baozi-top">
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+                <div class="pleat"></div>
+            </div>
+
+            <!-- 小笼包主体 -->
+            <div class="baozi-main">
+                <!-- 眼睛 -->
+                <div class="baozi-eyes">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                
+                <!-- 腮红 -->
+                <div class="baozi-blush left"></div>
+                <div class="baozi-blush right"></div>
+                
+                <!-- 笑脸 -->
+                <div class="baozi-smile">
+                    <div class="baozi-tongue"></div>
+                </div>
+                
+                <!-- 手臂 -->
+                <div class="baozi-arm left">
+                    <div class="baozi-hand"></div>
+                </div>
+                <div class="baozi-arm right">
+                    <div class="baozi-hand"></div>
+                </div>
+
+                <!-- 脚 -->
+                <div class="baozi-feet">
+                    <div class="foot"></div>
+                    <div class="foot"></div>
+                </div>
+            </div>
+
+            <!-- AI徽章 -->
+            <div class="ai-badge">
+                <div class="ai-text">AI</div>
+                <div class="ai-icon">✨</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 主标题 -->
+        <div class="hero">
+            <div class="hero-icon">🌾</div>
+            <h1>农业智能管理系统</h1>
+            <p>AI驱动的农业数据记录与智能问答平台</p>
+        </div>
+
+        <!-- 主要功能卡片 -->
+        <div class="main-features">
+            <a href="/chat" class="feature-card">
+                <div class="feature-icon">💬</div>
+                <div class="feature-title">AI智能问答</div>
+                <div class="feature-desc">基于RAG技术，随时解答农业疑问</div>
+            </a>
+
+            <a href="/my-crops" class="feature-card">
+                <div class="feature-icon">🌱</div>
+                <div class="feature-title">我的作物</div>
+                <div class="feature-desc">管理作物生命周期，快速记录数据</div>
+            </a>
+
+            <a href="/knowledge" class="feature-card">
+                <div class="feature-icon">📚</div>
+                <div class="feature-title">知识库</div>
+                <div class="feature-desc">管理AI的农业知识文档</div>
+            </a>
+        </div>
+
+        <!-- 数据统计区域 -->
+        <div class="stats-container">
+            <div class="stats-title">📊 实时数据</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="kb-count"><div class="loading"></div></div>
+                        <div class="stat-label">知识库文档</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">🌾</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="crops-count"><div class="loading"></div></div>
+                        <div class="stat-label">作物田块</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">📝</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="records-count"><div class="loading"></div></div>
+                        <div class="stat-label">数据记录</div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon">💬</div>
+                    <div class="stat-info">
+                        <div class="stat-number" id="chat-count"><div class="loading"></div></div>
+                        <div class="stat-label">对话消息</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 页脚 -->
+        <div class="footer">
+            <p>© 2025 农业智能管理系统 | 基于LangChain + RAG技术</p>
+            <p>作者：<a href="https://github.com/Gaoz-1224" target="_blank">高哲 (@Gaoz-1224)</a></p>
+        </div>
+    </div>
+
+    <script>
+        // 创建动态背景粒子
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const particleCount = 30;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // 小农宝交互
+        const mascot = document.getElementById('mascot');
+        const mascotContainer = document.getElementById('mascot-container');
+        const speechBubble = document.getElementById('speech-bubble');
+        
+        const messages = [
+            '你好！我是小农宝🥟',
+            '让我帮你管理农田吧！',
+            '今天也要好好照顾作物哦~',
+            '记得查看你的作物！',
+            '有问题随时问我！',
+            '我会一直陪着你的！',
+            '一起加油吧！💪',
+            '嘿嘿，我是胖胖的小笼包~',
+            '农业管理交给我！',
+            '让我们开始吧！✨'
+        ];
+        
+        let messageIndex = 0;
+        let isHovering = false;
+        let autoActionTimer = null;
+
+        // 鼠标悬停
+        mascot.addEventListener('mouseenter', () => {
+            isHovering = true;
+            clearAutoActions();
+            speechBubble.textContent = messages[messageIndex];
+            messageIndex = (messageIndex + 1) % messages.length;
+        });
+
+        mascot.addEventListener('mouseleave', () => {
+            isHovering = false;
+            startAutoActions();
+        });
+
+        // 点击跳转
+        mascot.addEventListener('click', () => {
+            // 点击时做一个蹦跳
+            mascotContainer.classList.add('auto-bounce');
+            setTimeout(() => {
+                mascotContainer.classList.remove('auto-bounce');
+                window.location.href = '/chat';
+            }, 1000);
+        });
+
+        // 自动动作系统
+        function startAutoActions() {
+            if (isHovering) return;
+
+            const actions = [
+                { name: 'bounce', duration: 1000, class: 'auto-bounce' },
+                { name: 'flip', duration: 1200, class: 'auto-flip' },
+                { name: 'sleep', duration: 3000, class: 'auto-sleep' }
+            ];
+
+            function performRandomAction() {
+                if (isHovering) return;
+
+                const action = actions[Math.floor(Math.random() * actions.length)];
+                mascotContainer.classList.add(action.class);
+
+                setTimeout(() => {
+                    mascotContainer.classList.remove(action.class);
+                }, action.duration);
+
+                // 3-6秒后执行下一个动作
+                autoActionTimer = setTimeout(performRandomAction, Math.random() * 3000 + 3000);
+            }
+
+            // 3秒后开始第一个动作
+            autoActionTimer = setTimeout(performRandomAction, 3000);
+        }
+
+        function clearAutoActions() {
+            if (autoActionTimer) {
+                clearTimeout(autoActionTimer);
+                autoActionTimer = null;
+            }
+            mascotContainer.className = 'mascot-container';
+        }
+
+        // 鼠标轻微跟随
+        let mouseX = 0, mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            if (isHovering) return;
+
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+
+            const mascotRect = mascot.getBoundingClientRect();
+            const mascotCenterX = mascotRect.left + mascotRect.width / 2;
+            const mascotCenterY = mascotRect.top + mascotRect.height / 2;
+
+            const deltaX = (mouseX - mascotCenterX) / 50;
+            const deltaY = (mouseY - mascotCenterY) / 50;
+
+            mascotContainer.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+        });
+
+        // 加载统计数据
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const data = await response.json();
+
+                if (data.success) {
+                    animateNumber('kb-count', data.knowledge_base.total || 0);
+                    animateNumber('chat-count', data.chat.total_messages || 0);
+                    
+                    if (data.crops_v2) {
+                        animateNumber('crops-count', data.crops_v2.total || 0);
+                        animateNumber('records-count', data.crops_v2.records || 0);
+                    } else {
+                        document.getElementById('crops-count').textContent = '0';
+                        document.getElementById('records-count').textContent = '0';
+                    }
+                }
+            } catch (error) {
+                console.error('加载统计失败:', error);
+                ['kb-count', 'crops-count', 'records-count', 'chat-count'].forEach(id => {
+                    document.getElementById(id).textContent = '0';
+                });
+            }
+        }
+
+        // 数字增长动画
+        function animateNumber(elementId, targetNumber) {
+            const element = document.getElementById(elementId);
+            const duration = 1500;
+            const steps = 60;
+            const increment = targetNumber / steps;
+            let current = 0;
+            let step = 0;
+
+            const timer = setInterval(() => {
+                step++;
+                current = Math.min(Math.floor(increment * step), targetNumber);
+                element.textContent = current;
+
+                if (step >= steps) {
+                    clearInterval(timer);
+                    element.textContent = targetNumber;
+                }
+            }, duration / steps);
+        }
+
+        // 页面加载完成后执行
+        window.onload = function() {
+            createParticles();
+            loadStats();
+            startAutoActions(); // 启动自动动作
+        };
+    </script>
+</body>
+</html>
