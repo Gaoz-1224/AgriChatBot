@@ -1,27 +1,28 @@
 # 核心框架
-Flask==3.1.2
-Flask-SQLAlchemy==3.1.1
-gunicorn==23.0.0
+Flask
+Flask-SQLAlchemy
+gunicorn
 
 # 环境变量
-python-dotenv==1.1.1
+python-dotenv
 
 # 数据库
-SQLAlchemy==2.0.44
+SQLAlchemy
 
 # AI核心（只保留必需）
-langchain==0.3.27
-langchain-community==0.3.31
-langchain-core==0.3.79
-dashscope==1.24.6
+langchain
+langchain-community
+langchain-core
+dashscope
 
 # 向量数据库（轻量版）
-chromadb==1.2.1
+chromadb
 
 # 文档处理
-PyPDF2==3.0.1
-python-docx==1.2.0
+PyPDF2
+python-docx
 
 # 工具
-requests==2.32.5
-pydantic==2.11.9
+requests
+pydantic
+
