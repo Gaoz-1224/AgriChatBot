@@ -17,7 +17,7 @@ dashscope
 
 # 向量数据库（轻量版）
 chromadb
-
+sentence-transformers
 # 文档处理
 PyPDF2
 python-docx
@@ -25,4 +25,5 @@ python-docx
 # 工具
 requests
 pydantic
+
 
