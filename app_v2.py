@@ -918,6 +918,14 @@ def api_cache_clear():
 
 
 
+# 创建数据库表
+with app.app_context():
+    try:
+        db.create_all()
+        print("✅ 数据库表已创建")
+    except Exception as e:
+        print(f"⚠️ 数据库初始化失败: {e}")
+
 
 # ===== 主程序 =====
 if __name__ == '__main__':
@@ -955,4 +963,5 @@ if __name__ == '__main__':
     print("📍 访问地址：http://localhost:5000")
     print("="*60 + "\n")
     
+
     app.run(debug=True, host='0.0.0.0', port=5000)
