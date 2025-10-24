@@ -1,32 +1,27 @@
-# Flask Web框架
-Flask
-Flask-SQLAlchemy
-flask-cors
-gunicorn
+# 核心框架
+Flask==3.1.2
+Flask-SQLAlchemy==3.1.1
+gunicorn==23.0.0
 
-# 环境变量管理
-python-dotenv
+# 环境变量
+python-dotenv==1.1.1
 
 # 数据库
-SQLAlchemy
+SQLAlchemy==2.0.44
 
-# AI相关
-langchain
-langchain-community
-langchain-core
-langchain-text-splitters
-dashscope
+# AI核心（只保留必需）
+langchain==0.3.27
+langchain-community==0.3.31
+langchain-core==0.3.79
+dashscope==1.24.6
 
-# 向量数据库
-chromadb
-sentence-transformers
+# 向量数据库（轻量版）
+chromadb==1.2.1
+
 # 文档处理
-PyPDF2
-python-docx
+PyPDF2==3.0.1
+python-docx==1.2.0
 
-# 工具库
-requests
-pydantic
-pydantic-settings
-
-typing_extensions
+# 工具
+requests==2.32.5
+pydantic==2.11.9
