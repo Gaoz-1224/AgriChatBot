@@ -19,7 +19,7 @@ dashscope
 
 # 向量数据库
 chromadb
-
+sentence-transformers
 # 文档处理
 PyPDF2
 python-docx
@@ -28,4 +28,5 @@ python-docx
 requests
 pydantic
 pydantic-settings
+
 typing_extensions
